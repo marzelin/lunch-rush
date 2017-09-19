@@ -1,22 +1,38 @@
-import React, { Component, PropTypes } from 'react';
-import map from 'lodash/map';
-import './Restaurant.css';
+import React, { Component, PropTypes } from "react"
+import "./Restaurant.css"
+import { auth, database } from "./firebase"
 
 class Restaurant extends Component {
-  render () {
+  handleSelect = () => {
+    const { id } = this.props
+    database.ref(`/restaurants/${id}/votes`).update({
+      [auth.currentUser.uid]: Date.now()
+    })
+  }
+  handleDeselect = () => {
+    const { id } = this.props
+    database.ref(`/restaurants/${id}/votes/${auth.currentUser.uid}`).remove()
+  }
+  render() {
+    const { votes = {}, name } = this.props
+    const isSelected = votes[auth.currentUser.uid] ? true : false
+    const handler = isSelected ? this.handleDeselect : this.handleSelect
+    const buttonText = isSelected ? "deselect" : "select"
     return (
       <article className="Restaurant">
+        <h3>{name}</h3>
+        <h3>Votes: {Object.keys(votes).length} </h3>
+        <button onClick={handler}>{buttonText}</button>
       </article>
-    );
+    )
   }
 }
 
 Restaurant.propTypes = {
+  id: PropTypes.string,
   name: PropTypes.string,
   votes: PropTypes.object,
-  user: PropTypes.object,
-  handleSelect: PropTypes.func,
-  handleDeselect: PropTypes.func
-};
+  user: PropTypes.string
+}
 
-export default Restaurant;
+export default Restaurant

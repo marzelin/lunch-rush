@@ -1,25 +1,38 @@
-import React, { Component, PropTypes } from 'react';
-import Restaurant from './Restaurant';
-import map from 'lodash/map';
-import './Restaurants.css';
+import React, { Component } from "react"
+import Restaurant from "./Restaurant"
+import { database } from "./firebase"
+import "./Restaurants.css"
 
 class Restaurants extends Component {
-  constructor(props) {
-    super(props);
+  state = {
+    restaurants: []
   }
 
-  render () {
+  getData = snap => {
+    this.setState(() => {
+      return {
+        restaurants: Object.values(snap.val() || {})
+      }
+    })
+  }
+
+  componentDidMount() {
+    database.ref("/restaurants").on("value", this.getData)
+  }
+
+  componentWillUnmount() {
+    database.ref("/restaurants").off("value", this.getData)
+  }
+
+  render() {
     return (
       <section className="Restaurants">
+        {this.state.restaurants.map(restaurant => (
+          <Restaurant {...restaurant} key={restaurant.id} />
+        ))}
       </section>
-    );
+    )
   }
 }
 
-Restaurants.propTypes = {
-  user: PropTypes,
-  restaurantsRef: PropTypes.object,
-  restaurants: PropTypes.object
-};
-
-export default Restaurants;
+export default Restaurants

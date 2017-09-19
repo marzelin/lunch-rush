@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { auth, database } from "./firebase"
+import { auth } from "./firebase"
 import CurrentUser from "./CurrentUser"
 import SignIn from "./SignIn"
 import NewRestaurant from "./NewRestaurant"
@@ -25,7 +25,15 @@ class Application extends Component {
         <header className="Application--header">
           <h1>Lunch Rush</h1>
         </header>
-        {user ? <CurrentUser {...{ user }} /> : <SignIn />}
+        {user ? (
+          <div>
+            <Restaurants />
+            <NewRestaurant />
+            <CurrentUser {...{ user }} />
+          </div>
+        ) : (
+          <SignIn />
+        )}
       </div>
     )
   }

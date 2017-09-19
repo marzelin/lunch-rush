@@ -1,46 +1,51 @@
-import React, { Component, PropTypes } from 'react';
-import './NewRestaurant.css';
+import React, { Component } from "react"
+import { auth, database } from "./firebase"
+import "./NewRestaurant.css"
 
 class NewRestaurant extends Component {
-  constructor() {
-    super();
+  constructor(initialProps) {
+    super(initialProps)
     this.state = {
-      name: ''
-    };
+      name: ""
+    }
 
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleSubmit(event) {
-    event.preventDefault();
+    event.preventDefault()
+    const ref = database.ref("/restaurants").push()
+    const user = auth.currentUser.uid
+    ref.set({
+      id: ref.key,
+      name: this.state.name,
+      votes: {
+        [user]: Date.now()
+      },
+      user
+    })
+    this.setState(() => ({
+      name: ""
+    }))
   }
 
   render() {
-    const { name } = this.state;
+    const { name } = this.state
 
     return (
-      <form
-        className="NewRestaurant"
-      >
+      <form className="NewRestaurant">
         <input
           type="text"
-          value={ name }
+          value={name}
           placeholder="Name of Fine Establishment"
-          onChange={(event) => this.setState({ name: event.target.value })}
+          onChange={event => this.setState({ name: event.target.value })}
         />
-        <button
-          onClick={this.handleSubmit}
-          disabled={!name}
-        >
+        <button onClick={this.handleSubmit} disabled={!name}>
           Submit
         </button>
       </form>
-    );
+    )
   }
 }
 
-NewRestaurant.propTypes = {
-  restaurantsRef: PropTypes.object
-};
-
-export default NewRestaurant;
+export default NewRestaurant
